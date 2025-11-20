@@ -1,6 +1,120 @@
 using System;
 using System.Collections.Generic;
 
+class Weapon
+{
+    public string name;
+    public int damage;
+
+    public Weapon(string name, int damage)
+    {
+        this.name = name;
+        this.damage = damage;
+    }
+
+    // Method to generate random weapon
+    public static Weapon GenerateRandomWeapon(Random rand)
+    {
+        string[] weaponNames = { "Sword", "Axe", "Bow", "Staff", "Fist" };
+        string randomWeaponName = weaponNames[rand.Next(weaponNames.Length)];
+        int weaponDamage = 0;
+
+        switch(randomWeaponName)
+        {
+            case "Sword":
+                weaponDamage = rand.Next(10, 21);
+                break;
+            case "Axe":
+                weaponDamage = rand.Next(15, 26);
+                break;
+            case "Bow":
+                weaponDamage = rand.Next(8, 18);
+                break;
+            case "Staff":
+                weaponDamage = rand.Next(12, 22);
+                break;
+            case "Fist":
+                weaponDamage = 5;
+                break;
+        }
+
+        return new Weapon(randomWeaponName, weaponDamage);
+    }
+}
+
+class player
+{
+    public string name;
+    public int health;
+    public Weapon weapon;
+
+    public player(string name, int health, Weapon weapon)
+    {
+        this.name = name;
+        this.health = health;
+        this.weapon = weapon;
+    }
+}
+
+class Warrior : player
+{
+    public Warrior(string name, Random rand) : base(name, 100, null)
+    {
+        // Warrior uses Sword
+        this.weapon = new Weapon("Sword", rand.Next(10, 25));
+    }
+}
+
+class Mage : player
+{
+    public Mage(string name, Random rand) : base(name, 70, null)
+    {
+        // Mage uses Staff
+        this.weapon = new Weapon("Staff", rand.Next(12, 30));
+    }
+}
+
+class Ranger : player
+{
+    public Ranger(string name, Random rand) : base(name, 80, null)
+    {
+        // Ranger uses Bow
+        this.weapon = new Weapon("Bow", rand.Next(8, 20));
+    }
+}
+
+class Berserker : player
+{
+    public Berserker(string name, Random rand) : base(name, 120, null)
+    {
+        // Berserker uses Axe
+        this.weapon = new Weapon("Axe", rand.Next(15, 35));
+    }
+}
+
+class MartialArtist : player
+{
+    public MartialArtist(string name, Random rand) : base(name, 90, null)
+    {
+        // Martial Artist uses Fist
+        this.weapon = new Weapon("Fist", 20);
+    }
+}
+
+class enemies
+{
+    public string type;
+    public int health;
+    public Weapon weapon;
+
+    public enemies(string type, int health, Weapon weapon)
+    {
+        this.type = type;
+        this.health = health;
+        this.weapon = weapon;
+    }
+}
+
 class Program
 {
     static int Add(int a, int b)
@@ -13,190 +127,153 @@ class Program
         Console.WriteLine("Hi, " + name + "!");
     }
 
-    static void GreetPlayers(string player1, string player2)
+    static void GreetPlayers(string hero)
     {
-        Console.WriteLine("Welcome " + player1 + " and " + player2 + " to the game!");
+        Console.WriteLine("Welcome " + hero + " to the game!");
     }
 
     static void Main()
     {
-        // Example of variable declarations
-        int player1health = 100;
-        int player2health = 100;
-        float speed = 5.5f;
-        bool alive = true;
-        double score = 999.99;
-
+        // Initialize random number generator
+        Random rand = new Random();
+        
         // Example of user input and output
         Console.WriteLine("Enter player 1 name: ");
-        string player1Name = Console.ReadLine();
-        Console.WriteLine("Enter player 2 name: ");
-        string player2Name = Console.ReadLine();
+        string playerName = Console.ReadLine();
         
         // Using method from to greet players
-        GreetPlayers(player1Name, player2Name);
+        GreetPlayers(playerName);
 
-        Console.WriteLine(player1Name + " health: " + player1health);
-        Console.WriteLine(player2Name + " health: " + player2health);
-
-        // Example of conditional statements
-
-        if(player1health == 100)
-        {
-            Console.WriteLine(player1Name + " is at full health!");
-        }
-        else if (player1health > 50)
-        {
-            Console.WriteLine(player1Name + " is in good health!");
-        }
-        else
-        {
-            Console.WriteLine(player1Name + " has low health!");
-        }
-
-        if(player2health == 100)
-        {
-            Console.WriteLine(player2Name + " is at full health!");
-        }
-        else if (player2health > 50)
-        {
-            Console.WriteLine(player2Name + " is in good health!");
-        }
-        else
-        {
-            Console.WriteLine(player2Name + " has low health!");
-        }
-
-        // List of available weapons with their damages
-        Dictionary<string, int> weaponDamages = new Dictionary<string, int>
-        {
-            { "Sword", 10 },
-            { "Axe", 15 },
-            { "Bow", 8 },
-            { "Staff", 12 },
-            { "Fist", 5 }
-        };
+        // Class selection system
+        Console.WriteLine("\nChoose your class:");
+        Console.WriteLine("1. Warrior (Sword - Balanced weapon for close combat)");
+        Console.WriteLine("2. Mage (Staff - Great for magic users)");
+        Console.WriteLine("3. Ranger (Bow - Perfect for ranged attacks)");
+        Console.WriteLine("4. Berserker (Axe - Heavy damage but slower)");
+        Console.WriteLine("5. Martial Artist (Fist - Fighting bare-handed)");
+        Console.WriteLine("\nEnter class number (1-5):");
         
-        Console.WriteLine("\nWeapons available:");
-        foreach (var weapon in weaponDamages)
-        {
-            Console.WriteLine("- " + weapon.Key + " (Damage: " + weapon.Value + ")");
-        }
-
-        // Example of a switch statement with list validation
-        Console.WriteLine("\nChoose your weapon from the list above:");
-        string player1weapon = Console.ReadLine();
+        string classChoice = Console.ReadLine();
+        player hero = null;
         
-        // Check if weapon exists in the dictionary
-        bool weaponFound = false;
-        foreach (var weapon in weaponDamages)
+        switch(classChoice)
         {
-            if (weapon.Key.ToLower() == player1weapon.ToLower())
-            {
-                weaponFound = true;
-                player1weapon = weapon.Key; // Set to proper case
+            case "1":
+                hero = new Warrior(playerName, rand);
+                Console.WriteLine("You have chosen Warrior! A balanced warrior for close combat.");
                 break;
-            }
+            case "2":
+                hero = new Mage(playerName, rand);
+                Console.WriteLine("You have chosen Mage! Master of magical arts.");
+                break;
+            case "3":
+                hero = new Ranger(playerName, rand);
+                Console.WriteLine("You have chosen Ranger! Expert in ranged combat.");
+                break;
+            case "4":
+                hero = new Berserker(playerName, rand);
+                Console.WriteLine("You have chosen Berserker! Fierce and powerful warrior.");
+                break;
+            case "5":
+                hero = new MartialArtist(playerName, rand);
+                Console.WriteLine("You have chosen Martial Artist! Master of hand-to-hand combat.");
+                break;
+            default:
+                Console.WriteLine("Invalid choice! Defaulting to Warrior.");
+                hero = new Warrior(playerName, rand);
+                break;
         }
 
-        if (weaponFound)
-        {
-            switch(player1weapon.ToLower())
-            {
-                case "sword":
-                    Console.WriteLine("You have chosen a Sword! A balanced weapon for close combat.");
-                    break;
-                case "axe":
-                    Console.WriteLine("You have chosen an Axe! Heavy damage but slower.");
-                    break;
-                case "bow":
-                    Console.WriteLine("You have chosen a Bow! Perfect for ranged attacks.");
-                    break;
-                case "staff":
-                    Console.WriteLine("You have chosen a Staff! Great for magic users.");
-                    break;
-                case "fist":
-                    Console.WriteLine("You have chosen your Fists! Fighting bare-handed!");
-                    break;
-            }
-        }
-        else
-        {
-            Console.WriteLine("Invalid weapon! Defaulting to Fist.");
-            player1weapon = "Fist";
-        }
+        Console.WriteLine("\n" + hero.name + " health: " + hero.health);
 
-        // Get weapon damage
-        int weaponDamage = weaponDamages[player1weapon];
-        Console.WriteLine("\nYour weapon deals " + weaponDamage + " damage per attack.");
+        Console.WriteLine(hero.name + "'s " + hero.weapon.name + " deals " + hero.weapon.damage + " damage per attack.");
+
+        // Enemy generation setup
+        string[] enemyTypes = { "Orc", "Elf", "Human", "Dwarf" };
+        
+        // Enemy health values by type
+        Dictionary<string, int> enemyHealthByType = new Dictionary<string, int>
+        {
+            { "Orc", 50 },
+            { "Elf", 27 },
+            { "Human", 35 },
+            { "Dwarf", 30 }
+        };
 
         // for loop example
         Console.WriteLine("\n--- Battle Start ---");
-        int enemiesLeft = 2;
+        int enemiesLeft = rand.Next(3, 5);
         for(int i = 0; i < enemiesLeft; i++)
         {
             Console.WriteLine("Enemy " + (i + 1) + " appeared!");
         }
 
         // while loop example - combat system
-        while(enemiesLeft > 0 && player1health > 0)
+        while(enemiesLeft > 0 && hero.health > 0)
         {
-            // Each enemy has random health between 20-50
-            Random rand = new Random();
-            int currentEnemyHealth = rand.Next(20, 50);
+            // Generate random enemy
+            string randomEnemyType = enemyTypes[rand.Next(enemyTypes.Length)];
+            Weapon randomEnemyWeapon = Weapon.GenerateRandomWeapon(rand);
+            
+            enemies currentEnemy = new enemies(
+                randomEnemyType,
+                enemyHealthByType[randomEnemyType],
+                randomEnemyWeapon
+            );
+            
             Console.WriteLine("\nEnemies left: " + enemiesLeft);
-            Console.WriteLine("Enemy " + enemiesLeft + " has " + currentEnemyHealth + " health.");
-            Console.WriteLine(player1Name + " health: " + player1health);
+            Console.WriteLine("A " + currentEnemy.type + " appeared with " + currentEnemy.weapon.name + " (Damage: " + currentEnemy.weapon.damage + ")!");
+            Console.WriteLine(currentEnemy.type + " health: " + currentEnemy.health);
+            Console.WriteLine(hero.name + " health: " + hero.health);
             
             // Fight until enemy is dead
-            while(currentEnemyHealth > 0 && player1health > 0)
+            while(currentEnemy.health > 0 && hero.health > 0)
             {
                 // Player attacks
-                currentEnemyHealth -= weaponDamage;
-                Console.WriteLine(player1Name + " attacks with " + player1weapon + " for " + weaponDamage + " damage!");
+                currentEnemy.health -= hero.weapon.damage;
+                Console.WriteLine(hero.name + " attacks with " + hero.weapon.name + " for " + hero.weapon.damage + " damage!");
                 
-                if(currentEnemyHealth > 0)
+                if(currentEnemy.health > 0)
                 {
-                    Console.WriteLine("Enemy " + enemiesLeft + " has " + currentEnemyHealth + " health left.");
+                    Console.WriteLine(currentEnemy.type + " has " + currentEnemy.health + " health left.");
                     
                     // Enemy attacks back
-                    int enemyDamage = rand.Next(5, 16);
-                    player1health -= enemyDamage;
-                    Console.WriteLine("Enemy " + enemiesLeft + " attacks for " + enemyDamage + " damage!");
+                    hero.health -= currentEnemy.weapon.damage;
+                    Console.WriteLine(currentEnemy.type + " attacks with " + currentEnemy.weapon.name + " for " + currentEnemy.weapon.damage + " damage!");
                     
-                    if(player1health > 0)
+                    if(hero.health > 0)
                     {
-                        Console.WriteLine(player1Name + " health: " + player1health);
+                        Console.WriteLine(hero.name + " health: " + hero.health);
                     }
                     else
                     {
-                        Console.WriteLine(player1Name + " has been defeated!");
+                        Console.WriteLine(hero.name + " has been defeated!");
                         break;
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Enemy " + enemiesLeft + " has been defeated by " + player1Name + " with " + player1weapon + "!");
+                    Console.WriteLine(currentEnemy.type + " has been defeated by " + hero.name + " with " + hero.weapon.name + "!");
                 }
                 
                 System.Threading.Thread.Sleep(500); // Pause for readability
             }
             
             // Only decrement enemies if enemy was defeated
-            if(currentEnemyHealth <= 0)
+            if(currentEnemy.health <= 0)
             {
                 enemiesLeft--;
             }
         }
         
-        if(player1health > 0)
+        if(hero.health > 0)
         {
             Console.WriteLine("\n*** Victory! All enemies defeated! ***");
-            Console.WriteLine(player1Name + " has " + player1health + " health remaining.");
+            Console.WriteLine(hero.name + " has " + hero.health + " health remaining.");
         }
         else
         {
-            Console.WriteLine("\n*** Game Over! " + player1Name + " was defeated! ***");
+            Console.WriteLine("\n*** Game Over! " + hero.name + " was defeated! ***");
         }
 
         // foreach loop example
@@ -205,6 +282,20 @@ class Program
         foreach(string item in items)
         {
             Console.WriteLine("Item: " + item);
+        }
+
+        // Example of conditional statements
+        if(hero.health == 100)
+        {
+            Console.WriteLine(hero.name + " is at full health!");
+        }
+        else if (hero.health > 50)
+        {
+            Console.WriteLine(hero.name + " is in good health!");
+        }
+        else
+        {
+            Console.WriteLine(hero.name + " has low health!");
         }
 
         // Array example
