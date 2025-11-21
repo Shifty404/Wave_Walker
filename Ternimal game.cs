@@ -15,7 +15,7 @@ class Weapon
     // Method to generate random weapon
     public static Weapon GenerateRandomWeapon(Random rand)
     {
-        string[] weaponNames = { "Sword", "Axe", "Bow", "Staff", "Fist" };
+        string[] weaponNames = { "Sword", "Axe", "Bow", "Dagger", "Staff", "Fist" };
         string randomWeaponName = weaponNames[rand.Next(weaponNames.Length)];
         int weaponDamage = 0;
 
@@ -32,6 +32,9 @@ class Weapon
                 break;
             case "Staff":
                 weaponDamage = rand.Next(12, 22);
+                break;
+            case "Dagger":
+                weaponDamage = rand.Next(7, 15);
                 break;
             case "Fist":
                 weaponDamage = 5;
@@ -92,6 +95,17 @@ class Berserker : player
     }
 }
 
+class Assassin : player
+{
+    public Assassin(string name, Random rand) : base(name, 90, null)
+    {
+        // Assassin uses Dagger
+        this.weapon = new Weapon("Dagger", rand.Next(7, 15));
+    }
+}
+
+
+
 class MartialArtist : player
 {
     public MartialArtist(string name, Random rand) : base(name, 90, null)
@@ -112,6 +126,25 @@ class enemies
         this.type = type;
         this.health = health;
         this.weapon = weapon;
+    }
+
+    public string GetDeathMessage()
+    {
+        switch(this.type)
+        {
+            case "Orc":
+                return this.type + " dies howling in agony!";
+            case "Elf":
+                return this.type + "'s long life has ended!";
+            case "Goblin":
+                return this.type + " exploded into pieces!";
+            case "Human":
+                return this.type + " has died!";
+            case "Dwarf":
+                return this.type + " falls with honor!";
+            default:
+                return this.type + " has been defeated!";
+        }
     }
 }
 
@@ -150,8 +183,9 @@ class Program
         Console.WriteLine("2. Mage (Staff - Great for magic users)");
         Console.WriteLine("3. Ranger (Bow - Perfect for ranged attacks)");
         Console.WriteLine("4. Berserker (Axe - Heavy damage but slower)");
-        Console.WriteLine("5. Martial Artist (Fist - Fighting bare-handed)");
-        Console.WriteLine("\nEnter class number (1-5):");
+        Console.WriteLine("5. Assassin (Dagger - Stealthy and quick attacks)");
+        Console.WriteLine("6. Martial Artist (Fist - Fighting bare-handed)");
+        Console.WriteLine("\nEnter class number (1-6):");
         
         string classChoice = Console.ReadLine();
         player hero = null;
@@ -175,12 +209,16 @@ class Program
                 Console.WriteLine("You have chosen Berserker! Fierce and powerful warrior.");
                 break;
             case "5":
+                hero = new Assassin(playerName, rand);
+                Console.WriteLine("You have chosen Assassin! Stealthy and quick attacks.");
+                break;
+            case "6":
                 hero = new MartialArtist(playerName, rand);
                 Console.WriteLine("You have chosen Martial Artist! Master of hand-to-hand combat.");
                 break;
             default:
-                Console.WriteLine("Invalid choice! Defaulting to Warrior.");
-                hero = new Warrior(playerName, rand);
+                Console.WriteLine("Invalid choice! Defaulting to Martial Artist.");
+                hero = new MartialArtist(playerName, rand);
                 break;
         }
 
@@ -189,13 +227,14 @@ class Program
         Console.WriteLine(hero.name + "'s " + hero.weapon.name + " deals " + hero.weapon.damage + " damage per attack.");
 
         // Enemy generation setup
-        string[] enemyTypes = { "Orc", "Elf", "Human", "Dwarf" };
+        string[] enemyTypes = { "Orc", "Elf", "Goblin", "Human", "Dwarf" };
         
         // Enemy health values by type
         Dictionary<string, int> enemyHealthByType = new Dictionary<string, int>
         {
             { "Orc", 50 },
             { "Elf", 27 },
+            { "Goblin", 20 },
             { "Human", 35 },
             { "Dwarf", 30 }
         };
@@ -229,9 +268,34 @@ class Program
             // Fight until enemy is dead
             while(currentEnemy.health > 0 && hero.health > 0)
             {
-                // Player attacks
+                // Player attacks with weapon-specific message
                 currentEnemy.health -= hero.weapon.damage;
-                Console.WriteLine(hero.name + " attacks with " + hero.weapon.name + " for " + hero.weapon.damage + " damage!");
+                
+                string attackMessage = "";
+                switch(hero.weapon.name)
+                {
+                    case "Sword":
+                        attackMessage = hero.name + " swings sword!";
+                        break;
+                    case "Bow":
+                        attackMessage = hero.name + " shoots arrow!";
+                        break;
+                    case "Fist":
+                        attackMessage = hero.name + " punched with his fist!";
+                        break;
+                    case "Axe":
+                        attackMessage = hero.name + " swings axe with fury!";
+                        break;
+                    case "Staff":
+                        attackMessage = hero.name + " casts spell with staff!";
+                        break;
+                    case "Dagger":
+                        attackMessage = hero.name + " strikes swiftly with dagger!";
+                        break;
+                }
+                
+                Console.WriteLine(attackMessage);
+                Console.WriteLine("Deals " + hero.weapon.damage + " damage!");
                 
                 if(currentEnemy.health > 0)
                 {
@@ -248,12 +312,11 @@ class Program
                     else
                     {
                         Console.WriteLine(hero.name + " has been defeated!");
-                        break;
                     }
                 }
                 else
                 {
-                    Console.WriteLine(currentEnemy.type + " has been defeated by " + hero.name + " with " + hero.weapon.name + "!");
+                    Console.WriteLine(currentEnemy.GetDeathMessage());
                 }
                 
                 System.Threading.Thread.Sleep(500); // Pause for readability
