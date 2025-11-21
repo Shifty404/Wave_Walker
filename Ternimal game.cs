@@ -1,25 +1,25 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 class Weapon
 {
-    public string name;
-    public int damage;
+    public string Name { get; set; }
+    public int Damage { get; set; }
 
     public Weapon(string name, int damage)
     {
-        this.name = name;
-        this.damage = damage;
+        Name = name;
+        Damage = damage;
     }
 
-    // Method to generate random weapon
     public static Weapon GenerateRandomWeapon(Random rand)
     {
         string[] weaponNames = { "Sword", "Axe", "Bow", "Dagger", "Staff", "Fist" };
         string randomWeaponName = weaponNames[rand.Next(weaponNames.Length)];
         int weaponDamage = 0;
 
-        switch(randomWeaponName)
+        switch (randomWeaponName)
         {
             case "Sword":
                 weaponDamage = rand.Next(10, 21);
@@ -45,70 +45,73 @@ class Weapon
     }
 }
 
-class player
+class Player
 {
-    public string name;
-    public int health;
-    public int maxHealth;
-    public Weapon weapon;
-    public int xp;
-    public int level;
-    public int potions;
-    public bool isDefending;
-    public bool isDodging;
-    public bool isParrying;
+    public string Name { get; set; }
+    public int Health { get; set; }
+    public int MaxHealth { get; set; }
+    public Weapon Weapon { get; set; }
+    public int XP { get; set; }
+    public int Level { get; set; }
+    public int Potions { get; set; }
+    public bool IsDefending { get; set; }
+    public bool IsDodging { get; set; }
+    public bool IsParrying { get; set; }
 
-    public player(string name, int health, Weapon weapon)
+    public Player(string name, int health, Weapon weapon)
     {
-        this.name = name;
-        this.health = health;
-        this.maxHealth = health;
-        this.weapon = weapon;
-        this.xp = 0;
-        this.level = 1;
-        this.potions = 3; // Start with 3 potions
-        this.isDefending = false;
-        this.isDodging = false;
-        this.isParrying = false;
+        Name = name;
+        Health = health;
+        MaxHealth = health;
+        Weapon = weapon;
+        XP = 0;
+        Level = 1;
+        Potions = 3;
+        IsDefending = false;
+        IsDodging = false;
+        IsParrying = false;
     }
 
     public void GainXP(int amount)
     {
-        this.xp += amount;
-        Console.WriteLine(this.name + " gained " + amount + " XP!");
-        
-        // Check for level up (need 100 XP per level)
-        int xpNeeded = this.level * 100;
-        if(this.xp >= xpNeeded)
+        XP += amount;
+        Console.WriteLine($"{Name} gained {amount} XP!");
+
+        int xpNeeded = Level * 100;
+        if (XP >= xpNeeded)
         {
             LevelUp();
         }
     }
 
-    public void LevelUp()
+    private void LevelUp()
     {
-        this.level++;
-        this.xp = 0;
-        this.weapon.damage += 5;
-        this.maxHealth += 20;
-        this.health = this.maxHealth; // Full heal on level up
-        
+        Level++;
+        XP = 0;
+        Weapon.Damage += 5;
+        MaxHealth += 20;
+        Health = MaxHealth;
+
+        Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine("\n*** LEVEL UP! ***");
-        Console.WriteLine(this.name + " is now level " + this.level + "!");
-        Console.WriteLine("Health fully restored to " + this.maxHealth + "!");
-        Console.WriteLine("Weapon damage increased to " + this.weapon.damage + "!");
+        Console.WriteLine($"{Name} is now level {Level}!");
+        Console.WriteLine($"Health fully restored to {MaxHealth}!");
+        Console.WriteLine($"Weapon damage increased to {Weapon.Damage}!");
+        Console.ResetColor();
     }
 
     public void UsePotion()
     {
-        if(this.potions > 0)
+        if (Potions > 0)
         {
-            int healAmount = Math.Min(50, this.maxHealth - this.health);
-            this.health += healAmount;
-            this.potions--;
-            Console.WriteLine(this.name + " used a potion and restored " + healAmount + " HP!");
-            Console.WriteLine("Current health: " + this.health + "/" + this.maxHealth);
-            Console.WriteLine("Potions remaining: " + this.potions);
+            int healAmount = Math.Min(50, MaxHealth - Health);
+            Health += healAmount;
+            Potions--;
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"{Name} used a potion and restored {healAmount} HP!");
+            Console.ResetColor();
+            Console.WriteLine($"Current health: {Health}/{MaxHealth}");
+            Console.WriteLine($"Potions remaining: {Potions}");
         }
         else
         {
@@ -118,579 +121,503 @@ class player
 
     public void ResetCombatStates()
     {
-        this.isDefending = false;
-        this.isDodging = false;
-        this.isParrying = false;
+        IsDefending = false;
+        IsDodging = false;
+        IsParrying = false;
     }
 }
 
-class Warrior : player
+// Subclasses for different player types
+class Warrior : Player
 {
-    public Warrior(string name, Random rand) : base(name, 100, null)
-    {
-        // Warrior uses Sword
-        this.weapon = new Weapon("Sword", rand.Next(10, 25));
-        this.maxHealth = 100;
-    }
+    public Warrior(string name, Random rand) : base(name, 100, new Weapon("Sword", rand.Next(10, 25))) { }
 }
 
-class Mage : player
+class Mage : Player
 {
-    public Mage(string name, Random rand) : base(name, 70, null)
-    {
-        // Mage uses Staff
-        this.weapon = new Weapon("Staff", rand.Next(12, 30));
-        this.maxHealth = 70;
-    }
+    public Mage(string name, Random rand) : base(name, 70, new Weapon("Staff", rand.Next(12, 30))) { }
 }
 
-class Ranger : player
+class Ranger : Player
 {
-    public Ranger(string name, Random rand) : base(name, 80, null)
-    {
-        // Ranger uses Bow
-        this.weapon = new Weapon("Bow", rand.Next(8, 20));
-        this.maxHealth = 80;
-    }
+    public Ranger(string name, Random rand) : base(name, 80, new Weapon("Bow", rand.Next(8, 20))) { }
 }
 
-class Berserker : player
+class Berserker : Player
 {
-    public Berserker(string name, Random rand) : base(name, 120, null)
-    {
-        // Berserker uses Axe
-        this.weapon = new Weapon("Axe", rand.Next(15, 35));
-        this.maxHealth = 120;
-    }
+    public Berserker(string name, Random rand) : base(name, 120, new Weapon("Axe", rand.Next(15, 35))) { }
 }
 
-class Assassin : player
+class Assassin : Player
 {
-    public Assassin(string name, Random rand) : base(name, 90, null)
-    {
-        // Assassin uses Dagger
-        this.weapon = new Weapon("Dagger", rand.Next(7, 15));
-        this.maxHealth = 90;
-    }
+    public Assassin(string name, Random rand) : base(name, 90, new Weapon("Dagger", rand.Next(7, 15))) { }
 }
 
-class MartialArtist : player
+class MartialArtist : Player
 {
-    public MartialArtist(string name, Random rand) : base(name, 90, null)
-    {
-        // Martial Artist uses Fist
-        this.weapon = new Weapon("Fist", 20);
-        this.maxHealth = 90;
-    }
+    public MartialArtist(string name, Random rand) : base(name, 90, new Weapon("Fist", 20)) { }
 }
 
-class enemies
+class Enemy
 {
-    public string type;
-    public int health;
-    public Weapon weapon;
-    public int xpReward;
-    public bool isDefending;
-    public bool isDodging;
-    public bool isParrying;
+    public string Type { get; set; }
+    public int Health { get; set; }
+    public Weapon Weapon { get; set; }
+    public int XPReward { get; set; }
+    public bool IsDefending { get; set; }
+    public bool IsDodging { get; set; }
+    public bool IsParrying { get; set; }
 
-    public enemies(string type, int health, Weapon weapon, int xpReward)
+    public Enemy(string type, int health, Weapon weapon, int xpReward)
     {
-        this.type = type;
-        this.health = health;
-        this.weapon = weapon;
-        this.xpReward = xpReward;
-        this.isDefending = false;
-        this.isDodging = false;
-        this.isParrying = false;
+        Type = type;
+        Health = health;
+        Weapon = weapon;
+        XPReward = xpReward;
+        IsDefending = false;
+        IsDodging = false;
+        IsParrying = false;
     }
 
     public void ResetCombatStates()
     {
-        this.isDefending = false;
-        this.isDodging = false;
-        this.isParrying = false;
+        IsDefending = false;
+        IsDodging = false;
+        IsParrying = false;
     }
 
     public string GetDeathMessage()
     {
-        switch(this.type)
+        return Type switch
         {
-            case "Orc":
-                return this.type + " dies howling in agony!";
-            case "Elf":
-                return this.type + "'s long life has ended!";
-            case "Goblin":
-                return this.type + " exploded into pieces!";
-            case "Human":
-                return this.type + " has died!";
-            case "Dwarf":
-                return this.type + " falls with honor!";
-            default:
-                return this.type + " has been defeated!";
-        }
+            "Orc" => $"{Type} dies howling in agony!",
+            "Elf" => $"{Type}'s long life has ended!",
+            "Goblin" => $"{Type} exploded into pieces!",
+            "Human" => $"{Type} has died!",
+            "Dwarf" => $"{Type} falls with honor!",
+            _ => $"{Type} has been defeated!"
+        };
     }
 }
 
-class Program
+class Game
 {
-    static void Greet(string name)
+    private Random rand;
+    private Player hero;
+    private int currentWave;
+    private bool continueGame;
+
+    private readonly string[] enemyTypes = { "Orc", "Elf", "Goblin", "Human", "Dwarf" };
+    private readonly Dictionary<string, int> enemyHealthByType = new Dictionary<string, int>
     {
-        Console.WriteLine("Hi, " + name + "!");
+        { "Orc", 50 }, { "Elf", 27 }, { "Goblin", 20 }, { "Human", 35 }, { "Dwarf", 30 }
+    };
+    private readonly Dictionary<string, int> enemyXPRewards = new Dictionary<string, int>
+    {
+        { "Orc", 50 }, { "Elf", 30 }, { "Goblin", 25 }, { "Human", 40 }, { "Dwarf", 35 }
+    };
+
+    public Game()
+    {
+        rand = new Random();
+        currentWave = 1;
+        continueGame = true;
     }
 
-    static void GreetPlayers(string hero)
+    // Helper for retro typewriter effect
+    private void Typewrite(string message, int speed = 20, bool newLine = true)
     {
-        Console.WriteLine("Welcome " + hero + " to the game!");
+        foreach (char c in message)
+        {
+            Console.Write(c);
+            Thread.Sleep(speed);
+        }
+        if (newLine) Console.WriteLine();
     }
 
-    static void Main()
+    // Helper for colored text
+    private void TypewriteColor(string message, ConsoleColor color, int speed = 20, bool newLine = true)
     {
-        // Initialize random number generator
-        Random rand = new Random();
-        
-        // Example of user input and output
-        Console.WriteLine("Enter player 1 name: ");
+        Console.ForegroundColor = color;
+        Typewrite(message, speed, newLine);
+        Console.ResetColor();
+    }
+
+    public void Start()
+    {
+        Typewrite("Enter player's ");
+        Typewrite("Name: ", 20, false);
         string playerName = Console.ReadLine();
-        
-        // Using method from to greet players
-        GreetPlayers(playerName);
+        Typewrite($"Welcome {playerName} to the game!");
 
-        // Class selection system
-        Console.WriteLine("\nChoose your class:");
+        SelectClass(playerName);
+        PrintStats();
+
+        while (continueGame && hero.Health > 0)
+        {
+            PlayWave();
+        }
+
+        EndGame();
+    }
+
+    private void SelectClass(string playerName)
+    {
+        Typewrite("\nChoose your class:");
         Console.WriteLine("1. Warrior (Sword - Balanced weapon for close combat)");
         Console.WriteLine("2. Mage (Staff - Great for magic users)");
         Console.WriteLine("3. Ranger (Bow - Perfect for ranged attacks)");
         Console.WriteLine("4. Berserker (Axe - Heavy damage but slower)");
         Console.WriteLine("5. Assassin (Dagger - Stealthy and quick attacks)");
         Console.WriteLine("6. Martial Artist (Fist - Fighting bare-handed)");
-        Console.WriteLine("\nEnter class number (1-6):");
-        
+        Typewrite("\nEnter class number (1-6):");
+        Typewrite("Choose an option: ", 20, false);
+
         string classChoice = Console.ReadLine();
-        player hero = null;
-        
-        switch(classChoice)
+
+        switch (classChoice)
         {
             case "1":
                 hero = new Warrior(playerName, rand);
-                Console.WriteLine("You have chosen Warrior! A balanced warrior for close combat.");
+                TypewriteColor("You have chosen Warrior!", ConsoleColor.Cyan);
                 break;
             case "2":
                 hero = new Mage(playerName, rand);
-                Console.WriteLine("You have chosen Mage! Master of magical arts.");
+                TypewriteColor("You have chosen Mage!", ConsoleColor.Cyan);
                 break;
             case "3":
                 hero = new Ranger(playerName, rand);
-                Console.WriteLine("You have chosen Ranger! Expert in ranged combat.");
+                TypewriteColor("You have chosen Ranger!", ConsoleColor.Cyan);
                 break;
             case "4":
                 hero = new Berserker(playerName, rand);
-                Console.WriteLine("You have chosen Berserker! Fierce and powerful warrior.");
+                TypewriteColor("You have chosen Berserker!", ConsoleColor.Cyan);
                 break;
             case "5":
                 hero = new Assassin(playerName, rand);
-                Console.WriteLine("You have chosen Assassin! Stealthy and quick attacks.");
+                TypewriteColor("You have chosen Assassin!", ConsoleColor.Cyan);
                 break;
             case "6":
                 hero = new MartialArtist(playerName, rand);
-                Console.WriteLine("You have chosen Martial Artist! Master of hand-to-hand combat.");
+                TypewriteColor("You have chosen Martial Artist!", ConsoleColor.Cyan);
                 break;
             default:
-                Console.WriteLine("Invalid choice! Defaulting to Martial Artist.");
+                TypewriteColor("Invalid choice! Defaulting to Martial Artist.", ConsoleColor.Yellow);
                 hero = new MartialArtist(playerName, rand);
                 break;
         }
+    }
 
-        Console.WriteLine("\n" + hero.name + " Stats:");
-        Console.WriteLine("Level: " + hero.level);
-        Console.WriteLine("Health: " + hero.health + "/" + hero.maxHealth);
-        Console.WriteLine("Weapon: " + hero.weapon.name + " (Damage: " + hero.weapon.damage + ")");
-        Console.WriteLine("Potions: " + hero.potions);
+    private void PrintStats()
+    {
+        Console.WriteLine($"\n{hero.Name} Stats:");
+        Console.WriteLine($"Level: {hero.Level}");
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"Health: {hero.Health}/{hero.MaxHealth}");
+        Console.ResetColor();
+        Console.WriteLine($"Weapon: {hero.Weapon.Name} (Damage: {hero.Weapon.Damage})");
+        Console.WriteLine($"Potions: {hero.Potions}");
+    }
 
-        // Enemy generation setup
-        string[] enemyTypes = { "Orc", "Elf", "Goblin", "Human", "Dwarf" };
-        
-        // Enemy health values by type
-        Dictionary<string, int> enemyHealthByType = new Dictionary<string, int>
+    private void PlayWave()
+    {
+        TypewriteColor($"\n========== WAVE {currentWave} ===========", ConsoleColor.Magenta);
+        int enemiesLeft = rand.Next(2, 5);
+        Typewrite($"{enemiesLeft} enemies incoming!");
+
+        while (enemiesLeft > 0 && hero.Health > 0)
         {
-            { "Orc", 50 },
-            { "Elf", 27 },
-            { "Goblin", 20 },
-            { "Human", 35 },
-            { "Dwarf", 30 }
-        };
+            Enemy currentEnemy = GenerateEnemy();
+            Console.WriteLine($"\nEnemies left: {enemiesLeft}");
+            TypewriteColor($"A {currentEnemy.Type} appeared with {currentEnemy.Weapon.Name} (Damage: {currentEnemy.Weapon.Damage})!", ConsoleColor.Red);
 
-        // Enemy XP rewards by type
-        Dictionary<string, int> enemyXPRewards = new Dictionary<string, int>
-        {
-            { "Orc", 50 },
-            { "Elf", 30 },
-            { "Goblin", 25 },
-            { "Human", 40 },
-            { "Dwarf", 35 }
-        };
+            CombatLoop(currentEnemy);
 
-        // Wave system
-        int currentWave = 1;
-        bool continueGame = true;
-
-        while(continueGame && hero.health > 0)
-        {
-            Console.WriteLine("\n========== WAVE " + currentWave + " ===========");
-            int enemiesLeft = rand.Next(2, 5);
-            
-            Console.WriteLine(enemiesLeft + " enemies incoming!");
-            for(int i = 0; i < enemiesLeft; i++)
-            {
-                Console.WriteLine("Enemy " + (i + 1) + " appeared!");
-            }
-
-            // Combat system for current wave
-            while(enemiesLeft > 0 && hero.health > 0)
-            {
-                // Generate random enemy
-                string randomEnemyType = enemyTypes[rand.Next(enemyTypes.Length)];
-                Weapon randomEnemyWeapon = Weapon.GenerateRandomWeapon(rand);
-                
-                // Scale enemy stats based on wave number
-                int scaledHealth = enemyHealthByType[randomEnemyType] + ((currentWave - 1) * 10); // +10 HP per wave
-                int scaledWeaponDamage = randomEnemyWeapon.damage + ((currentWave - 1) * 3); // +3 damage per wave
-                int scaledXPReward = enemyXPRewards[randomEnemyType] + ((currentWave - 1) * 15); // +15 XP per wave
-                
-                // Update weapon damage
-                randomEnemyWeapon.damage = scaledWeaponDamage;
-                
-                enemies currentEnemy = new enemies(
-                    randomEnemyType,
-                    scaledHealth,
-                    randomEnemyWeapon,
-                    scaledXPReward
-                );
-            
-            Console.WriteLine("\nEnemies left: " + enemiesLeft);
-            Console.WriteLine("A " + currentEnemy.type + " appeared with " + currentEnemy.weapon.name + " (Damage: " + currentEnemy.weapon.damage + ")!");
-            Console.WriteLine(currentEnemy.type + " health: " + currentEnemy.health);
-            Console.WriteLine(hero.name + " health: " + hero.health + "/" + hero.maxHealth);
-            
-            // Turn-based combat loop
-            while(currentEnemy.health > 0 && hero.health > 0)
-            {
-                // Reset combat states at the start of each turn
-                hero.ResetCombatStates();
-                currentEnemy.ResetCombatStates();
-                
-                Console.WriteLine("\n--- Your Turn ---");
-                Console.WriteLine(hero.name + " HP: " + hero.health + "/" + hero.maxHealth + " | " + currentEnemy.type + " HP: " + currentEnemy.health);
-                Console.WriteLine("\nChoose your action:");
-                Console.WriteLine("1. Attack");
-                Console.WriteLine("2. Parry (Counter enemy attack)");
-                Console.WriteLine("3. Dodge (Avoid enemy attack)");
-                Console.WriteLine("4. Defend (Reduce damage by 50%)");
-                
-                if(hero.potions > 0)
-                {
-                    Console.WriteLine("5. Use Potion (Ends turn)");
-                    Console.WriteLine("6. End Turn (Do nothing)");
-                }
-                else
-                {
-                    Console.WriteLine("5. End Turn (Do nothing)");
-                }
-                
-                string playerAction = Console.ReadLine();
-                bool playerTurnComplete = false;
-                
-                switch(playerAction)
-                {
-                    case "1": // Attack
-                        string attackMessage = "";
-                        switch(hero.weapon.name)
-                        {
-                            case "Sword":
-                                attackMessage = hero.name + " swings sword!";
-                                break;
-                            case "Bow":
-                                attackMessage = hero.name + " shoots arrow!";
-                                break;
-                            case "Fist":
-                                attackMessage = hero.name + " punched with his fist!";
-                                break;
-                            case "Axe":
-                                attackMessage = hero.name + " swings axe with fury!";
-                                break;
-                            case "Staff":
-                                attackMessage = hero.name + " casts spell with staff!";
-                                break;
-                            case "Dagger":
-                                attackMessage = hero.name + " strikes swiftly with dagger!";
-                                break;
-                        }
-                        Console.WriteLine("\n" + attackMessage);
-                        currentEnemy.health -= hero.weapon.damage;
-                        Console.WriteLine("Deals " + hero.weapon.damage + " damage!");
-                        playerTurnComplete = true;
-                        break;
-                        
-                    case "2": // Parry
-                        Console.WriteLine("\n" + hero.name + " prepares to parry!");
-                        hero.isParrying = true;
-                        playerTurnComplete = true;
-                        break;
-                        
-                    case "3": // Dodge
-                        Console.WriteLine("\n" + hero.name + " prepares to dodge!");
-                        hero.isDodging = true;
-                        playerTurnComplete = true;
-                        break;
-                        
-                    case "4": // Defend
-                        Console.WriteLine("\n" + hero.name + " takes a defensive stance!");
-                        hero.isDefending = true;
-                        playerTurnComplete = true;
-                        break;
-                        
-                    case "5":
-                        if(hero.potions > 0)
-                        {
-                            // Use Potion
-                            hero.UsePotion();
-                            playerTurnComplete = true;
-                        }
-                        else
-                        {
-                            // End Turn
-                            Console.WriteLine("\n" + hero.name + " does nothing in this turn.");
-                            playerTurnComplete = true;
-                        }
-                        break;
-                        
-                    case "6": // End Turn (only when potions available)
-                        if(hero.potions > 0)
-                        {
-                            Console.WriteLine("\n" + hero.name + " does nothing in this turn.");
-                            playerTurnComplete = true;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Invalid action! Turn skipped.");
-                            playerTurnComplete = true;
-                        }
-                        break;
-                        
-                    default:
-                        Console.WriteLine("Invalid action! Turn skipped.");
-                        playerTurnComplete = true;
-                        break;
-                }
-                
-                if(currentEnemy.health <= 0)
-                {
-                    Console.WriteLine("\n" + currentEnemy.GetDeathMessage());
-                    hero.GainXP(currentEnemy.xpReward);
-                    
-                    // Enemy potion drop (1:20 ratio = 5% chance)
-                    int dropChance = rand.Next(1, 21);
-                    if(dropChance == 1)
-                    {
-                        hero.potions++;
-                        Console.WriteLine(currentEnemy.type + " dropped a potion!");
-                        Console.WriteLine("Potions: " + hero.potions);
-                    }
-                    break;
-                }
-                
-                // Enemy turn
-                if(playerTurnComplete && hero.health > 0)
-                {
-                    Console.WriteLine("\n--- Enemy Turn ---");
-                    System.Threading.Thread.Sleep(500);
-                    
-                    // Enemy AI - weighted random action (70% attack, 10% each for other actions)
-                    int actionRoll = rand.Next(1, 101);
-                    int enemyAction;
-                    if(actionRoll <= 70)
-                    {
-                        enemyAction = 1; // Attack
-                    }
-                    else if(actionRoll <= 80)
-                    {
-                        enemyAction = 2; // Parry
-                    }
-                    else if(actionRoll <= 90)
-                    {
-                        enemyAction = 3; // Dodge
-                    }
-                    else
-                    {
-                        enemyAction = 4; // Defend
-                    }
-                    
-                    switch(enemyAction)
-                    {
-                        case 1: // Enemy attacks
-                            Console.WriteLine(currentEnemy.type + " attacks with " + currentEnemy.weapon.name + "!");
-                            
-                            if(hero.isDodging)
-                            {
-                                // Dodge attempt
-                                int dodgeChance = rand.Next(1, 101);
-                                if(dodgeChance <= 60) // 60% dodge success
-                                {
-                                    Console.WriteLine(hero.name + " dodged the attack!");
-                                }
-                                else
-                                {
-                                    hero.health -= currentEnemy.weapon.damage;
-                                    Console.WriteLine("Dodge failed! " + hero.name + " takes " + currentEnemy.weapon.damage + " damage!");
-                                }
-                            }
-                            else if(hero.isParrying)
-                            {
-                                // Parry - counter attack
-                                Console.WriteLine(hero.name + " parried the attack and counters!");
-                                int counterDamage = hero.weapon.damage / 2;
-                                currentEnemy.health -= counterDamage;
-                                Console.WriteLine(hero.name + " deals " + counterDamage + " counter damage!");
-                            }
-                            else if(hero.isDefending)
-                            {
-                                // Defend - reduced damage
-                                int reducedDamage = currentEnemy.weapon.damage / 2;
-                                hero.health -= reducedDamage;
-                                Console.WriteLine(hero.name + " blocked! Only takes " + reducedDamage + " damage!");
-                            }
-                            else
-                            {
-                                // Normal attack
-                                hero.health -= currentEnemy.weapon.damage;
-                                Console.WriteLine(hero.name + " takes " + currentEnemy.weapon.damage + " damage!");
-                            }
-                            break;
-                            
-                        case 2: // Enemy parries
-                            Console.WriteLine(currentEnemy.type + " prepares to parry!");
-                            currentEnemy.isParrying = true;
-                            break;
-                            
-                        case 3: // Enemy dodges
-                            Console.WriteLine(currentEnemy.type + " prepares to dodge!");
-                            currentEnemy.isDodging = true;
-                            break;
-                            
-                        case 4: // Enemy defends
-                            Console.WriteLine(currentEnemy.type + " takes a defensive stance!");
-                            currentEnemy.isDefending = true;
-                            break;
-                    }
-                    
-                    if(hero.health > 0)
-                    {
-                        Console.WriteLine(hero.name + " HP: " + hero.health + "/" + hero.maxHealth);
-                    }
-                    else
-                    {
-                        Console.WriteLine("\n" + hero.name + " has been defeated!");
-                    }
-                }
-                
-                System.Threading.Thread.Sleep(800);
-            }
-            
-            // Only decrement enemies if enemy was defeated
-            if(currentEnemy.health <= 0)
+            if (currentEnemy.Health <= 0)
             {
                 enemiesLeft--;
             }
         }
-        
-        // Wave completed
-        if(hero.health > 0)
+
+        if (hero.Health > 0)
         {
-            Console.WriteLine("\n*** Wave " + currentWave + " Complete! ***");
-            Console.WriteLine(hero.name + " has " + hero.health + "/" + hero.maxHealth + " health remaining.");
-            Console.WriteLine("Level: " + hero.level + " | XP: " + hero.xp + "/" + (hero.level * 100));
-            Console.WriteLine("Potions: " + hero.potions);
-            
-            // Wave pause menu loop
-            bool menuActive = true;
-            while(menuActive)
+            WaveComplete();
+        }
+    }
+
+    private Enemy GenerateEnemy()
+    {
+        string randomEnemyType = enemyTypes[rand.Next(enemyTypes.Length)];
+        Weapon randomEnemyWeapon = Weapon.GenerateRandomWeapon(rand);
+
+        int scaledHealth = enemyHealthByType[randomEnemyType] + ((currentWave - 1) * 10);
+        int scaledWeaponDamage = randomEnemyWeapon.Damage + ((currentWave - 1) * 3);
+        int scaledXPReward = enemyXPRewards[randomEnemyType] + ((currentWave - 1) * 15);
+
+        randomEnemyWeapon.Damage = scaledWeaponDamage;
+
+        return new Enemy(randomEnemyType, scaledHealth, randomEnemyWeapon, scaledXPReward);
+    }
+
+    private void CombatLoop(Enemy currentEnemy)
+    {
+        while (currentEnemy.Health > 0 && hero.Health > 0)
+        {
+            hero.ResetCombatStates();
+            currentEnemy.ResetCombatStates();
+
+            PlayerTurn(currentEnemy);
+
+            if (currentEnemy.Health <= 0)
             {
-                Console.WriteLine("\nWhat would you like to do?");
-                Console.WriteLine("1. Continue to next wave");
-                Console.WriteLine("2. Check inventory");
-                Console.WriteLine("3. End game");
+                HandleEnemyDefeat(currentEnemy);
+                break;
+            }
+
+            if (hero.Health > 0)
+            {
+                Thread.Sleep(1000); // Pause before enemy turn
+                EnemyTurn(currentEnemy);
+                Thread.Sleep(1000); // Pause after enemy turn
+            }
+        }
+    }
+
+    private void PlayerTurn(Enemy currentEnemy)
+    {
+        Console.WriteLine("\n--- Your Turn ---");
+        Console.WriteLine($"{hero.Name} HP: {hero.Health}/{hero.MaxHealth} | {currentEnemy.Type} HP: {currentEnemy.Health}");
+        Console.WriteLine("1. Attack | 2. Parry | 3. Dodge | 4. Defend | 5. Potion | 6. Wait");
+        Typewrite("Choose an option: ", 20, false);
+
+        string playerAction = Console.ReadLine();
+        bool turnEnded = false;
+
+        switch (playerAction)
+        {
+            case "1":
+                PerformAttack(hero, currentEnemy);
+                turnEnded = true;
+                break;
+            case "2":
+                Typewrite($"{hero.Name} prepares to parry!");
+                hero.IsParrying = true;
+                turnEnded = true;
+                break;
+            case "3":
+                Typewrite($"{hero.Name} prepares to dodge!");
+                hero.IsDodging = true;
+                turnEnded = true;
+                break;
+            case "4":
+                Typewrite($"{hero.Name} takes a defensive stance!");
+                hero.IsDefending = true;
+                turnEnded = true;
+                break;
+            case "5":
+                if (hero.Potions > 0)
+                {
+                    hero.UsePotion();
+                    turnEnded = true;
+                }
+                else
+                {
+                    TypewriteColor("No potions!", ConsoleColor.Red);
+                }
+                break;
+            case "6":
+                Typewrite("Skipping turn...");
+                turnEnded = true;
+                break;
+            default:
+                TypewriteColor("Invalid action!", ConsoleColor.Yellow);
+                break;
+        }
+        
+        if (!turnEnded) PlayerTurn(currentEnemy); // Retry if invalid
+    }
+
+    private void PerformAttack(Player attacker, Enemy target)
+    {
+        Typewrite($"{attacker.Name} attacks with {attacker.Weapon.Name}!");
+        target.Health -= attacker.Weapon.Damage;
+        TypewriteColor($"Deals {attacker.Weapon.Damage} damage!", ConsoleColor.Green);
+    }
+
+    private void EnemyTurn(Enemy currentEnemy)
+    {
+        Console.WriteLine("\n--- Enemy Turn ---");
+        Thread.Sleep(500);
+
+        int actionRoll = rand.Next(1, 101);
+        // 70% attack, 10% parry, 10% dodge, 10% defend
+        if (actionRoll <= 70)
+        {
+            EnemyAttack(currentEnemy);
+        }
+        else if (actionRoll <= 80)
+        {
+            Typewrite($"{currentEnemy.Type} prepares to parry!");
+            currentEnemy.IsParrying = true;
+        }
+        else if (actionRoll <= 90)
+        {
+            Typewrite($"{currentEnemy.Type} prepares to dodge!");
+            currentEnemy.IsDodging = true;
+        }
+        else
+        {
+            Typewrite($"{currentEnemy.Type} defends!");
+            currentEnemy.IsDefending = true;
+        }
+    }
+
+    private void EnemyAttack(Enemy enemy)
+    {
+        Typewrite($"{enemy.Type} attacks!");
+
+        if (hero.IsDodging)
+        {
+            if (rand.Next(1, 101) <= 60)
+            {
+                TypewriteColor($"{hero.Name} dodged successfully!", ConsoleColor.Cyan);
+                return;
+            }
+            TypewriteColor("Dodge failed!", ConsoleColor.Red);
+        }
+
+        if (hero.IsParrying)
+        {
+            TypewriteColor($"{hero.Name} parried and counters!", ConsoleColor.Cyan);
+            int counterDmg = hero.Weapon.Damage / 2;
+            enemy.Health -= counterDmg;
+            TypewriteColor($"Counter deals {counterDmg} damage!", ConsoleColor.Green);
+            return;
+        }
+
+        int damage = enemy.Weapon.Damage;
+        if (hero.IsDefending)
+        {
+            damage /= 2;
+            TypewriteColor("Blocked! Damage reduced.", ConsoleColor.Cyan);
+        }
+
+        hero.Health -= damage;
+        TypewriteColor($"{hero.Name} takes {damage} damage!", ConsoleColor.Red);
+    }
+
+    private void HandleEnemyDefeat(Enemy enemy)
+    {
+        TypewriteColor($"\n{enemy.GetDeathMessage()}", ConsoleColor.Yellow);
+        hero.GainXP(enemy.XPReward);
+
+        if (rand.Next(1, 21) == 1)
+        {
+            hero.Potions++;
+            TypewriteColor("Enemy dropped a potion!", ConsoleColor.Green);
+        }
+    }
+
+    private void WaveComplete()
+    {
+        TypewriteColor($"\n*** Wave {currentWave} Complete! ***", ConsoleColor.Magenta);
+        PrintStats();
+
+        bool menuActive = true;
+        while (menuActive)
+        {
+            Console.WriteLine("\n1. Next Wave | 2. Inventory | 3. Quit");
+            Console.Write("Choose an option: ");
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    if (hero.Health < 50)
+                    {
+                        TypewriteColor($"\nWARNING: Low health ({hero.Health}/{hero.MaxHealth})!", ConsoleColor.Red);
+                        Console.WriteLine("Continue? (y/n)");
+                        Console.Write("Choose an option: ");
+                        if (Console.ReadLine().ToLower() != "y") break;
+                    }
+                    currentWave++;
+                    menuActive = false;
+                    break;
+
+                case "2":
+                    InventoryMenu();
+                    break;
+
+                case "3":
+                    continueGame = false;
+                    menuActive = false;
+                    break;
+
+                default:
+                    Console.WriteLine("Invalid choice.");
+                    break;
+            }
+        }
+    }
+
+    private void InventoryMenu()
+    {
+        bool inInventory = true;
+        while (inInventory)
+        {
+            Console.WriteLine("\n=== Inventory ===");
+            
+            if (hero.Potions == 0)
+            {
+                TypewriteColor("Inventory empty", ConsoleColor.Gray);
+                Console.WriteLine("1. Back");
+                Console.Write("Choose an option: ");
+                string choice = Console.ReadLine();
+                if (choice == "1") inInventory = false;
+            }
+            else
+            {
+                Console.WriteLine($"Potions: {hero.Potions}");
+                Console.WriteLine("1. Use Potion | 2. Back");
+                Console.Write("Choose an option: ");
                 
                 string choice = Console.ReadLine();
-                
-                switch(choice)
+                if (choice == "1")
                 {
-                    case "1":
-                        // Check if health is low
-                        if(hero.health < 50)
-                        {
-                            Console.WriteLine("\nWARNING: Your health is low (" + hero.health + "/" + hero.maxHealth + ")!");
-                            Console.WriteLine("Are you sure you want to continue? (yes/no)");
-                            string confirm = Console.ReadLine();
-                            if(confirm.ToLower() == "yes" || confirm.ToLower() == "y")
-                            {
-                                currentWave++;
-                                menuActive = false;
-                            }
-                        }
-                        else
-                        {
-                            currentWave++;
-                            menuActive = false;
-                        }
-                        break;
-                    case "2":
-                        Console.WriteLine("\n=== Inventory ===");
-                        if(hero.potions > 0)
-                        {
-                            Console.WriteLine("1. Use potion (Potions: " + hero.potions + ") (Heals 50 HP)");
-                            Console.WriteLine("2. Back to menu");
-                            
-                            string inventoryChoice = Console.ReadLine();
-                            if(inventoryChoice == "1")
-                            {
-                                Console.WriteLine("\nAre you sure you want to use a potion? (yes/no)");
-                                string confirm = Console.ReadLine();
-                                if(confirm.ToLower() == "yes" || confirm.ToLower() == "y")
-                                {
-                                    hero.UsePotion();
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Potion not used.");
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Potions: 0");
-                            Console.WriteLine("1. Back to menu");
-                            Console.ReadLine();
-                        }
-                        // Loop back to menu
-                        break;
-                    case "3":
-                        continueGame = false;
-                        menuActive = false;
-                        Console.WriteLine("\nThanks for playing!");
-                        break;
-                    default:
-                        Console.WriteLine("Invalid choice. Please try again.");
-                        break;
+                    Console.WriteLine("Use potion? (y/n)");
+                    Console.Write("Choose an option: ");
+                    if (Console.ReadLine().ToLower() == "y") hero.UsePotion();
+                }
+                else if (choice == "2")
+                {
+                    inInventory = false;
                 }
             }
         }
     }
-        
-        if(hero.health <= 0)
+
+    private void EndGame()
+    {
+        if (hero.Health <= 0)
         {
-            Console.WriteLine("\n*** Game Over! " + hero.name + " was defeated! ***");
-            Console.WriteLine("You survived " + (currentWave - 1) + " waves.");
-            Console.WriteLine("Final Level: " + hero.level);
+            TypewriteColor($"\n*** Game Over! {hero.Name} was defeated! ***", ConsoleColor.Red);
         }
+        else
+        {
+            TypewriteColor("\nThanks for playing!", ConsoleColor.Cyan);
+        }
+        
+        int wavesSurvived = hero.Health > 0 ? currentWave : currentWave - 1;
+        
+        TypewriteColor($"Final Level: {hero.Level} | Waves Survived: {wavesSurvived}", ConsoleColor.White);
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Game game = new Game();
+        game.Start();
     }
 }
