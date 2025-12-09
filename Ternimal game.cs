@@ -458,7 +458,7 @@ class Game
             WaveComplete(false);
         }
 
-        while (continueGame && hero.Health > 0)
+        while (continueGame && hero!.Health > 0)
         {
             PlayWave();
         }
