@@ -1,0 +1,14 @@
+C:\Users\shift\Desktop\Game making\WaveWalker\bin\Debug\net10.0\WaveWalker.exe
+C:\Users\shift\Desktop\Game making\WaveWalker\bin\Debug\net10.0\WaveWalker.deps.json
+C:\Users\shift\Desktop\Game making\WaveWalker\bin\Debug\net10.0\WaveWalker.runtimeconfig.json
+C:\Users\shift\Desktop\Game making\WaveWalker\bin\Debug\net10.0\WaveWalker.dll
+C:\Users\shift\Desktop\Game making\WaveWalker\bin\Debug\net10.0\WaveWalker.pdb
+C:\Users\shift\Desktop\Game making\WaveWalker\obj\Debug\net10.0\WaveWalker.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\shift\Desktop\Game making\WaveWalker\obj\Debug\net10.0\WaveWalker.AssemblyInfoInputs.cache
+C:\Users\shift\Desktop\Game making\WaveWalker\obj\Debug\net10.0\WaveWalker.AssemblyInfo.cs
+C:\Users\shift\Desktop\Game making\WaveWalker\obj\Debug\net10.0\WaveWalker.csproj.CoreCompileInputs.cache
+C:\Users\shift\Desktop\Game making\WaveWalker\obj\Debug\net10.0\WaveWalker.dll
+C:\Users\shift\Desktop\Game making\WaveWalker\obj\Debug\net10.0\refint\WaveWalker.dll
+C:\Users\shift\Desktop\Game making\WaveWalker\obj\Debug\net10.0\WaveWalker.pdb
+C:\Users\shift\Desktop\Game making\WaveWalker\obj\Debug\net10.0\WaveWalker.genruntimeconfig.cache
+C:\Users\shift\Desktop\Game making\WaveWalker\obj\Debug\net10.0\ref\WaveWalker.dll
