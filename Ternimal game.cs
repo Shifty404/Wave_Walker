@@ -120,14 +120,14 @@ class Player
 
     public virtual bool UseAbility(Enemy target)
     {
-        Console.WriteLine($"{Name} has no special ability!");
+        UI.Typewrite($"{Name} has no special ability!");
         return false;
     }
 
     public void GainXP(int amount)
     {
         XP += amount;
-        Console.WriteLine($"{Name} gained {amount} XP!");
+        UI.Typewrite($"{Name} gained {amount} XP!", ConsoleColor.Yellow);
 
         int xpNeeded = Level * 100;
         if (XP >= xpNeeded)
@@ -147,12 +147,10 @@ class Player
         Mana = MaxMana;
         SoundManager.PlaySound("LEVELUP");
 
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("\n*** LEVEL UP! ***");
-        Console.WriteLine($"{Name} is now level {Level}!");
-        Console.WriteLine($"Health fully restored to {MaxHealth}!");
-        Console.WriteLine($"Weapon damage increased to {Weapon.Damage}!");
-        Console.ResetColor();
+        UI.Typewrite("\n*** LEVEL UP! ***", ConsoleColor.Yellow);
+        UI.Typewrite($"{Name} is now level {Level}!", ConsoleColor.Yellow);
+        UI.Typewrite($"Health fully restored to {MaxHealth}!", ConsoleColor.Green);
+        UI.Typewrite($"Weapon damage increased to {Weapon.Damage}!", ConsoleColor.Cyan);
     }
 
     public void UsePotion()
@@ -162,26 +160,21 @@ class Player
             int healAmount = Math.Min(50, MaxHealth - Health);
             Health += healAmount;
             Potions--;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"{Name} used a potion and restored {healAmount} HP!");
-            Console.ResetColor();
-            Console.WriteLine($"Current health: {Health}/{MaxHealth}");
-            Console.WriteLine($"Potions remaining: {Potions}");
+            UI.Typewrite($"{Name} used a potion and restored {healAmount} HP!", ConsoleColor.Green);
+            UI.Typewrite($"Current health: {Health}/{MaxHealth}", ConsoleColor.Green);
+            UI.Typewrite($"Potions remaining: {Potions}", ConsoleColor.White);
         }
         else
         {
-            Console.WriteLine("No potions left!");
+            UI.Typewrite("No potions left!", ConsoleColor.Red);
         }
     }
 
     public void Meditate()
     {
-        // Formula: 10 + (2% of MaxMana)
         int manaRecovered = 10 + (int)(MaxMana * 0.02);
         Mana = Math.Min(MaxMana, Mana + manaRecovered);
-        Console.ForegroundColor = ConsoleColor.Blue;
-        Console.WriteLine($"{Name} meditates and recovers {manaRecovered} Mana!");
-        Console.ResetColor();
+        UI.Typewrite($"{Name} meditates and recovers {manaRecovered} Mana!", ConsoleColor.Blue);
     }
 
     public void ResetCombatStates()
@@ -192,7 +185,6 @@ class Player
     }
 }
 
-// Subclasses for different player types
 class Warrior : Player
 {
     public Warrior(string name, Random rand) : base(name, 100, new Weapon("Sword", rand.Next(10, 25), 10), 20, rand) { }
@@ -202,19 +194,17 @@ class Warrior : Player
         if (Mana >= 10)
         {
             Mana -= 10;
-            Console.WriteLine($"{Name} uses Shield Bash!");
-            target.IsDefending = false; // Break defense
+            UI.Typewrite($"{Name} uses Shield Bash!", ConsoleColor.Cyan);
+            target.IsDefending = false;
             int dmg = (int)(Weapon.Damage * 1.5);
             target.Health -= dmg;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Dealt {dmg} damage and broke defense!");
-            Console.ResetColor();
+            UI.Typewrite($"Dealt {dmg} damage and broke defense!", ConsoleColor.Green);
             SoundManager.PlaySound("ATTACK");
             return true;
         }
         else
         {
-            Console.WriteLine("Not enough Mana!");
+            UI.Typewrite("Not enough Mana!", ConsoleColor.Red);
             return false;
         }
     }
@@ -229,18 +219,16 @@ class Mage : Player
         if (Mana >= 20)
         {
             Mana -= 20;
-            Console.WriteLine($"{Name} casts Fireball!");
+            UI.Typewrite($"{Name} casts Fireball!", ConsoleColor.Cyan);
             int dmg = rand.Next(30, 50);
             target.Health -= dmg;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Dealt {dmg} fire damage!");
-            Console.ResetColor();
+            UI.Typewrite($"Dealt {dmg} fire damage!", ConsoleColor.Green);
             SoundManager.PlaySound("ATTACK");
             return true;
         }
         else
         {
-            Console.WriteLine("Not enough Mana!");
+            UI.Typewrite("Not enough Mana!", ConsoleColor.Red);
             return false;
         }
     }
@@ -255,18 +243,16 @@ class Ranger : Player
         if (Mana >= 15)
         {
             Mana -= 15;
-            Console.WriteLine($"{Name} fires a Power Shot!");
+            UI.Typewrite($"{Name} fires a Power Shot!", ConsoleColor.Cyan);
             int dmg = Weapon.Damage * 2;
             target.Health -= dmg;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Dealt {dmg} critical damage!");
-            Console.ResetColor();
+            UI.Typewrite($"Dealt {dmg} critical damage!", ConsoleColor.Green);
             SoundManager.PlaySound("ATTACK");
             return true;
         }
         else
         {
-            Console.WriteLine("Not enough Mana!");
+            UI.Typewrite("Not enough Mana!", ConsoleColor.Red);
             return false;
         }
     }
@@ -281,19 +267,17 @@ class Berserker : Player
         if (Mana >= 10)
         {
             Mana -= 10;
-            Console.WriteLine($"{Name} goes into a Rage!");
+            UI.Typewrite($"{Name} goes into a Rage!", ConsoleColor.Cyan);
             int dmg = Weapon.Damage + 10;
             target.Health -= dmg;
-            Health -= 5; // Self damage
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Dealt {dmg} damage but took 5 damage!");
-            Console.ResetColor();
+            Health -= 5;
+            UI.Typewrite($"Dealt {dmg} damage but took 5 damage!", ConsoleColor.Green);
             SoundManager.PlaySound("ATTACK");
             return true;
         }
         else
         {
-            Console.WriteLine("Not enough Mana!");
+            UI.Typewrite("Not enough Mana!", ConsoleColor.Red);
             return false;
         }
     }
@@ -308,18 +292,16 @@ class Assassin : Player
         if (Mana >= 25)
         {
             Mana -= 25;
-            Console.WriteLine($"{Name} uses Backstab!");
+            UI.Typewrite($"{Name} uses Backstab!", ConsoleColor.Cyan);
             int dmg = Weapon.Damage * 3;
             target.Health -= dmg;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Dealt {dmg} massive damage!");
-            Console.ResetColor();
+            UI.Typewrite($"Dealt {dmg} massive damage!", ConsoleColor.Green);
             SoundManager.PlaySound("ATTACK");
             return true;
         }
         else
         {
-            Console.WriteLine("Not enough Mana!");
+            UI.Typewrite("Not enough Mana!", ConsoleColor.Red);
             return false;
         }
     }
@@ -334,18 +316,16 @@ class MartialArtist : Player
         if (Mana >= 15)
         {
             Mana -= 15;
-            Console.WriteLine($"{Name} uses Flurry of Blows!");
+            UI.Typewrite($"{Name} uses Flurry of Blows!", ConsoleColor.Cyan);
             int dmg = Weapon.Damage + rand.Next(5, 15);
             target.Health -= dmg;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Dealt {dmg} combo damage!");
-            Console.ResetColor();
+            UI.Typewrite($"Dealt {dmg} combo damage!", ConsoleColor.Green);
             SoundManager.PlaySound("ATTACK");
             return true;
         }
         else
         {
-            Console.WriteLine("Not enough Mana!");
+            UI.Typewrite("Not enough Mana!", ConsoleColor.Red);
             return false;
         }
     }
@@ -395,14 +375,40 @@ class Enemy
     }
 }
 
+static class UI
+{
+    public static void Typewrite(string message, ConsoleColor color = ConsoleColor.White, int speed = 20, bool newLine = true)
+    {
+        Console.ForegroundColor = color;
+        bool skip = false;
+        foreach (char c in message)
+        {
+            Console.Write(c);
+            if (!skip)
+            {
+                if (Console.KeyAvailable)
+                {
+                    Console.ReadKey(true);
+                    skip = true;
+                }
+                else
+                {
+                    Thread.Sleep(speed);
+                }
+            }
+        }
+        if (newLine) Console.WriteLine();
+        Console.ResetColor();
+    }
+}
+
 class Game
 {
     private Random rand;
-    private Player hero;
+    private Player hero = null!;
     private int currentWave;
     private bool continueGame;
 
-    // Loot tracking for the current wave
     private int waveGoldGained;
     private List<string> waveItemsGained;
 
@@ -425,46 +431,19 @@ class Game
         waveItemsGained = new List<string>();
     }
 
-    // Helper for retro typewriter effect
-    private void Typewrite(string message, int speed = 20, bool newLine = true)
-    {
-        foreach (char c in message)
-        {
-            Console.Write(c);
-            Thread.Sleep(speed);
-        }
-        if (newLine) Console.WriteLine();
-    }
-
-    // Helper for colored text
-    private void TypewriteColor(string message, ConsoleColor color, int speed = 20, bool newLine = true)
-    {
-        Console.ForegroundColor = color;
-        Typewrite(message, speed, newLine);
-        Console.ResetColor();
-    }
-
-    // Instant text helper
-    private void InstantWriteColor(string message, ConsoleColor color)
-    {
-        Console.ForegroundColor = color;
-        Console.WriteLine(message);
-        Console.ResetColor();
-    }
-
     public void Start()
     {
-        Console.WriteLine("1. New Game | 2. Load Game");
-        Console.Write("Choose an option: ");
-        string choice = Console.ReadLine();
+        UI.Typewrite("1. New Game | 2. Load Game", ConsoleColor.Cyan);
+        UI.Typewrite("Choose an option: ", ConsoleColor.White, 20, false);
+        string choice = Console.ReadLine() ?? "";
 
         bool loaded = false;
         if (choice == "2")
         {
             loaded = LoadGame();
-            if (hero == null) // Load failed or no file
+            if (hero == null)
             {
-                Console.WriteLine("Starting new game...");
+                UI.Typewrite("Starting new game...", ConsoleColor.White);
                 NewGameSetup();
                 loaded = false;
             }
@@ -474,10 +453,9 @@ class Game
             NewGameSetup();
         }
 
-        // If loaded, show the menu first before starting the wave
         if (loaded)
         {
-            WaveComplete(false); // false = don't show loot summary for previous wave
+            WaveComplete(false);
         }
 
         while (continueGame && hero.Health > 0)
@@ -490,10 +468,9 @@ class Game
 
     private void NewGameSetup()
     {
-        Typewrite("Enter player's ");
-        Typewrite("Name: ", 20, false);
-        string playerName = Console.ReadLine();
-        Typewrite($"Welcome {playerName} to the game!");
+        UI.Typewrite("Enter player's Name: ", ConsoleColor.White, 20, false);
+        string playerName = Console.ReadLine() ?? "Player";
+        UI.Typewrite($"Welcome {playerName} to the game!", ConsoleColor.Cyan);
 
         SelectClass(playerName);
         PrintStats();
@@ -501,46 +478,46 @@ class Game
 
     private void SelectClass(string playerName)
     {
-        Typewrite("\nChoose your class:");
-        Console.WriteLine("1. Warrior (Sword - Balanced weapon for close combat)");
-        Console.WriteLine("2. Mage (Staff - Great for magic users)");
-        Console.WriteLine("3. Ranger (Bow - Perfect for ranged attacks)");
-        Console.WriteLine("4. Berserker (Axe - Heavy damage but slower)");
-        Console.WriteLine("5. Assassin (Dagger - Stealthy and quick attacks)");
-        Console.WriteLine("6. Martial Artist (Fist - Fighting bare-handed)");
-        Typewrite("\nEnter class number (1-6):");
-        Typewrite("Choose an option: ", 20, false);
+        UI.Typewrite("\nChoose your class:", ConsoleColor.Cyan);
+        UI.Typewrite("1. Warrior (Sword - Balanced weapon for close combat)", ConsoleColor.White);
+        UI.Typewrite("2. Mage (Staff - Great for magic users)", ConsoleColor.White);
+        UI.Typewrite("3. Ranger (Bow - Perfect for ranged attacks)", ConsoleColor.White);
+        UI.Typewrite("4. Berserker (Axe - Heavy damage but slower)", ConsoleColor.White);
+        UI.Typewrite("5. Assassin (Dagger - Stealthy and quick attacks)", ConsoleColor.White);
+        UI.Typewrite("6. Martial Artist (Fist - Fighting bare-handed)", ConsoleColor.White);
+        UI.Typewrite("\nEnter class number (1-6):", ConsoleColor.Cyan);
+        UI.Typewrite("Choose an option: ", ConsoleColor.White, 20, false);
 
-        string classChoice = Console.ReadLine();
+        string classChoice = Console.ReadLine() ?? "";
 
         switch (classChoice)
         {
             case "1":
                 hero = new Warrior(playerName, rand);
-                TypewriteColor("You have chosen Warrior!", ConsoleColor.Cyan);
+                UI.Typewrite("You have chosen Warrior!", ConsoleColor.Cyan);
                 break;
             case "2":
                 hero = new Mage(playerName, rand);
-                TypewriteColor("You have chosen Mage!", ConsoleColor.Cyan);
+                UI.Typewrite("You have chosen Mage!", ConsoleColor.Cyan);
                 break;
             case "3":
                 hero = new Ranger(playerName, rand);
-                TypewriteColor("You have chosen Ranger!", ConsoleColor.Cyan);
+                UI.Typewrite("You have chosen Ranger!", ConsoleColor.Cyan);
                 break;
             case "4":
                 hero = new Berserker(playerName, rand);
-                TypewriteColor("You have chosen Berserker!", ConsoleColor.Cyan);
+                UI.Typewrite("You have chosen Berserker!", ConsoleColor.Cyan);
                 break;
             case "5":
                 hero = new Assassin(playerName, rand);
-                TypewriteColor("You have chosen Assassin!", ConsoleColor.Cyan);
+                UI.Typewrite("You have chosen Assassin!", ConsoleColor.Cyan);
                 break;
             case "6":
                 hero = new MartialArtist(playerName, rand);
-                TypewriteColor("You have chosen Martial Artist!", ConsoleColor.Cyan);
+                UI.Typewrite("You have chosen Martial Artist!", ConsoleColor.Cyan);
                 break;
             default:
-                TypewriteColor("Invalid choice! Defaulting to Martial Artist.", ConsoleColor.Yellow);
+                UI.Typewrite("Invalid choice! Defaulting to Martial Artist.", ConsoleColor.Yellow);
                 hero = new MartialArtist(playerName, rand);
                 break;
         }
@@ -548,42 +525,38 @@ class Game
 
     private void PrintStats()
     {
-        Console.WriteLine($"\n{hero.Name} Stats:");
-        Console.WriteLine($"Level: {hero.Level}");
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"Health: {hero.Health}/{hero.MaxHealth}");
-        Console.ForegroundColor = ConsoleColor.Blue;
-        Console.WriteLine($"Mana: {hero.Mana}/{hero.MaxMana}");
-        Console.ResetColor();
-        Console.WriteLine($"Weapon: {hero.Weapon.Name} (Damage: {hero.Weapon.Damage})");
-        Console.WriteLine($"Potions: {hero.Potions}");
+        UI.Typewrite($"\n{hero.Name} Stats:", ConsoleColor.White);
+        UI.Typewrite($"Level: {hero.Level}", ConsoleColor.White);
+        UI.Typewrite($"Health: {hero.Health}/{hero.MaxHealth}", ConsoleColor.Green);
+        UI.Typewrite($"Mana: {hero.Mana}/{hero.MaxMana}", ConsoleColor.Blue);
+        UI.Typewrite($"Weapon: {hero.Weapon.Name} (Damage: {hero.Weapon.Damage})", ConsoleColor.White);
+        UI.Typewrite($"Potions: {hero.Potions}", ConsoleColor.White);
     }
 
     private void PlayWave()
     {
-        // Reset wave loot tracking
         waveGoldGained = 0;
         waveItemsGained.Clear();
 
-        TypewriteColor($"\n========== WAVE {currentWave} ===========", ConsoleColor.Magenta);
+        UI.Typewrite($"\n========== WAVE {currentWave} ===========", ConsoleColor.Magenta);
         
         int enemiesLeft;
         if (currentWave % 5 == 0)
         {
-            enemiesLeft = 1; // Boss wave has only 1 enemy
-            TypewriteColor("WARNING: BOSS APPROACHING!", ConsoleColor.Red);
+            enemiesLeft = 1;
+            UI.Typewrite("WARNING: BOSS APPROACHING!", ConsoleColor.Red);
         }
         else
         {
             enemiesLeft = rand.Next(2, 5);
-            Typewrite($"{enemiesLeft} enemies incoming!");
+            UI.Typewrite($"{enemiesLeft} enemies incoming!", ConsoleColor.White);
         }
 
         while (enemiesLeft > 0 && hero.Health > 0)
         {
             Enemy currentEnemy = GenerateEnemy();
-            Console.WriteLine($"\nEnemies left: {enemiesLeft}");
-            TypewriteColor($"A {currentEnemy.Type} appeared with {currentEnemy.Weapon.Name} (Damage: {currentEnemy.Weapon.Damage})!", ConsoleColor.Red);
+            UI.Typewrite($"\nEnemies left: {enemiesLeft}", ConsoleColor.White);
+            UI.Typewrite($"A {currentEnemy.Type} appeared with {currentEnemy.Weapon.Name} (Damage: {currentEnemy.Weapon.Damage})!", ConsoleColor.Red);
 
             CombatLoop(currentEnemy);
 
@@ -595,7 +568,7 @@ class Game
 
         if (hero.Health > 0)
         {
-            WaveComplete(true); // true = show loot summary
+            WaveComplete(true);
         }
     }
 
@@ -612,7 +585,6 @@ class Game
 
         int scaledGoldReward = rand.Next(10, 30) + ((currentWave - 1) * 5);
         
-        // Boss Logic
         if (currentWave % 5 == 0)
         {
             randomEnemyType = "BOSS " + randomEnemyType;
@@ -643,27 +615,28 @@ class Game
 
             if (hero.Health > 0)
             {
-                Thread.Sleep(1000); // Pause before enemy turn
+                Thread.Sleep(1000);
                 EnemyTurn(currentEnemy);
-                Thread.Sleep(1000); // Pause after enemy turn
+                Thread.Sleep(1000);
             }
         }
     }
 
     private void PlayerTurn(Enemy currentEnemy)
     {
-        Console.WriteLine("\n--- Your Turn ---");
+        UI.Typewrite("\n--- Your Turn ---", ConsoleColor.White);
         Console.ForegroundColor = ConsoleColor.Green;
         Console.Write($"HP: {hero.Health}/{hero.MaxHealth} ");
         Console.ForegroundColor = ConsoleColor.Blue;
         Console.WriteLine($"Mana: {hero.Mana}/{hero.MaxMana}");
         Console.ResetColor();
-        Console.WriteLine($"Enemy: {currentEnemy.Type} (HP: {currentEnemy.Health})");
         
-        Console.WriteLine("1. Attack | 2. Parry | 3. Dodge | 4. Defend | 5. Potion | 6. Ability | 7. Meditate | 8. Wait");
-        Typewrite("Choose an option: ", 20, false);
+        UI.Typewrite($"Enemy: {currentEnemy.Type} (HP: {currentEnemy.Health})", ConsoleColor.Red);
+        
+        UI.Typewrite("1. Attack | 2. Parry | 3. Dodge | 4. Defend | 5. Potion | 6. Ability | 7. Meditate | 8. Wait", ConsoleColor.White);
+        UI.Typewrite("Choose an option: ", ConsoleColor.White, 20, false);
 
-        string playerAction = Console.ReadLine();
+        string playerAction = Console.ReadLine() ?? "";
         bool turnEnded = false;
 
         switch (playerAction)
@@ -673,17 +646,17 @@ class Game
                 turnEnded = true;
                 break;
             case "2":
-                Typewrite($"{hero.Name} prepares to parry!");
+                UI.Typewrite($"{hero.Name} prepares to parry!", ConsoleColor.Cyan);
                 hero.IsParrying = true;
                 turnEnded = true;
                 break;
             case "3":
-                Typewrite($"{hero.Name} prepares to dodge!");
+                UI.Typewrite($"{hero.Name} prepares to dodge!", ConsoleColor.Cyan);
                 hero.IsDodging = true;
                 turnEnded = true;
                 break;
             case "4":
-                Typewrite($"{hero.Name} takes a defensive stance!");
+                UI.Typewrite($"{hero.Name} takes a defensive stance!", ConsoleColor.Cyan);
                 hero.IsDefending = true;
                 turnEnded = true;
                 break;
@@ -695,11 +668,10 @@ class Game
                 }
                 else
                 {
-                    TypewriteColor("No potions!", ConsoleColor.Red);
+                    UI.Typewrite("No potions!", ConsoleColor.Red);
                 }
                 break;
             case "6":
-                // UseAbility now returns true if successful, false if not (e.g. no mana)
                 if (hero.UseAbility(currentEnemy))
                 {
                     turnEnded = true;
@@ -710,82 +682,80 @@ class Game
                 turnEnded = true;
                 break;
             case "8":
-                Typewrite("Skipping turn...");
+                UI.Typewrite("Skipping turn...");
                 turnEnded = true;
                 break;
             default:
-                TypewriteColor("Invalid action!", ConsoleColor.Yellow);
+                UI.Typewrite("Invalid action!", ConsoleColor.Yellow);
                 break;
         }
         
-        if (!turnEnded) PlayerTurn(currentEnemy); // Retry if invalid or action failed
+        if (!turnEnded) PlayerTurn(currentEnemy);
     }
 
     private void PerformAttack(Player attacker, Enemy target)
     {
-        Typewrite($"{attacker.Name} attacks with {attacker.Weapon.Name}!");
+        UI.Typewrite($"{attacker.Name} attacks with {attacker.Weapon.Name}!", ConsoleColor.White);
         
-        // Crit Logic
         int damage = attacker.Weapon.Damage;
         if (rand.Next(1, 101) <= attacker.Weapon.CritChance)
         {
             damage *= 2;
-            InstantWriteColor("CRITICAL HIT!", ConsoleColor.Red);
+            UI.Typewrite("CRITICAL HIT!", ConsoleColor.Red, 10);
         }
 
         target.Health -= damage;
-        InstantWriteColor($"Deals {damage} damage!", ConsoleColor.Green);
+        UI.Typewrite($"Deals {damage} damage!", ConsoleColor.Green, 10);
         SoundManager.PlaySound("HIT");
     }
 
     private void EnemyTurn(Enemy currentEnemy)
     {
-        Console.WriteLine("\n--- Enemy Turn ---");
+        UI.Typewrite("\n--- Enemy Turn ---", ConsoleColor.White);
         Thread.Sleep(500);
 
         int actionRoll = rand.Next(1, 101);
-        // 70% attack, 10% parry, 10% dodge, 10% defend
         if (actionRoll <= 70)
         {
             EnemyAttack(currentEnemy);
         }
         else if (actionRoll <= 80)
         {
-            Typewrite($"{currentEnemy.Type} prepares to parry!");
+            UI.Typewrite($"{currentEnemy.Type} prepares to parry!", ConsoleColor.Cyan);
             currentEnemy.IsParrying = true;
         }
         else if (actionRoll <= 90)
         {
-            Typewrite($"{currentEnemy.Type} prepares to dodge!");
+            UI.Typewrite($"{currentEnemy.Type} prepares to dodge!", ConsoleColor.Cyan);
             currentEnemy.IsDodging = true;
         }
         else
         {
-            Typewrite($"{currentEnemy.Type} defends!");
+            UI.Typewrite($"{currentEnemy.Type} defends!", ConsoleColor.Cyan);
             currentEnemy.IsDefending = true;
         }
     }
 
     private void EnemyAttack(Enemy enemy)
     {
-        Typewrite($"{enemy.Type} attacks!");
+        UI.Typewrite($"{enemy.Type} attacks!", ConsoleColor.Red);
 
         if (hero.IsDodging)
         {
             if (rand.Next(1, 101) <= 60)
             {
-                InstantWriteColor($"{hero.Name} dodged successfully!", ConsoleColor.Cyan);
+                UI.Typewrite($"{hero.Name} dodged successfully!", ConsoleColor.Cyan, 10);
                 return;
             }
-            InstantWriteColor("Dodge failed!", ConsoleColor.Red);
+            UI.Typewrite("Dodge failed!", ConsoleColor.Red, 10);
         }
 
         if (hero.IsParrying)
         {
-            InstantWriteColor($"{hero.Name} parried and counters!", ConsoleColor.Cyan);
+            UI.Typewrite($"{hero.Name} parried and counters!", ConsoleColor.Cyan, 10);
             int counterDmg = hero.Weapon.Damage / 2;
             enemy.Health -= counterDmg;
-            InstantWriteColor($"Counter deals {counterDmg} damage!", ConsoleColor.Green);
+            UI.Typewrite($"Counter deals {counterDmg} damage!", ConsoleColor.Green, 10);
             return;
         }
 
@@ -793,39 +763,34 @@ class Game
         if (hero.IsDefending)
         {
             damage /= 2;
-            InstantWriteColor("Blocked! Damage reduced.", ConsoleColor.Cyan);
+            UI.Typewrite("Blocked! Damage reduced.", ConsoleColor.Cyan, 10);
         }
 
-        // Armor Reduction
         damage = Math.Max(0, damage - hero.Armor.Defense);
 
         hero.Health -= damage;
-        InstantWriteColor($"{hero.Name} takes {damage} damage!", ConsoleColor.Red);
+        UI.Typewrite($"{hero.Name} takes {damage} damage!", ConsoleColor.Red, 10);
     }
 
     private void HandleEnemyDefeat(Enemy enemy)
     {
-        InstantWriteColor($"\n{enemy.GetDeathMessage()}", ConsoleColor.Yellow);
+        UI.Typewrite($"\n{enemy.GetDeathMessage()}", ConsoleColor.Yellow);
         hero.GainXP(enemy.XPReward);
         hero.Gold += enemy.GoldReward;
         
-        // Track loot
         waveGoldGained += enemy.GoldReward;
-        // Removed immediate print of Gold found
         SoundManager.PlaySound("DEATH");
 
         if (rand.Next(1, 21) == 1)
         {
             hero.Potions++;
             waveItemsGained.Add("Potion");
-            // Removed immediate print of Potion found
         }
         
-        if (rand.Next(1, 51) == 1) // 2% chance for armor upgrade
+        if (rand.Next(1, 51) == 1)
         {
             hero.Armor.Defense++;
             waveItemsGained.Add("Armor Upgrade");
-            // Removed immediate print of Armor Upgrade found
         }
     }
 
@@ -833,20 +798,19 @@ class Game
     {
         if (showSummary)
         {
-            TypewriteColor($"\n*** Wave {currentWave} Complete! ***", ConsoleColor.Magenta);
+            UI.Typewrite($"\n*** Wave {currentWave} Complete! ***", ConsoleColor.Magenta);
             
-            // Loot Summary
-            Console.WriteLine("\n--- Wave Loot ---");
-            Console.WriteLine($"Gold Earned: {waveGoldGained}");
+            UI.Typewrite("\n--- Wave Loot ---", ConsoleColor.White);
+            UI.Typewrite($"Gold Earned: {waveGoldGained}", ConsoleColor.Yellow);
             if (waveItemsGained.Count > 0)
             {
-                Console.WriteLine("Items Found: " + string.Join(", ", waveItemsGained));
+                UI.Typewrite("Items Found: " + string.Join(", ", waveItemsGained), ConsoleColor.Cyan);
             }
             else
             {
-                Console.WriteLine("Items Found: None");
+                UI.Typewrite("Items Found: None");
             }
-            Console.WriteLine("-----------------");
+            UI.Typewrite("-----------------", ConsoleColor.White);
         }
 
         PrintStats();
@@ -854,19 +818,19 @@ class Game
         bool menuActive = true;
         while (menuActive)
         {
-            Console.WriteLine("\n1. Next Wave | 2. Inventory | 3. Shop | 4. Save & Quit");
-            Console.Write("Choose an option: ");
-            string choice = Console.ReadLine();
+            UI.Typewrite("\n1. Next Wave | 2. Inventory | 3. Shop | 4. Save & Quit", ConsoleColor.Cyan);
+            UI.Typewrite("Choose an option: ", ConsoleColor.White, 20, false);
+            string choice = Console.ReadLine() ?? "";
 
             switch (choice)
             {
                 case "1":
                     if (hero.Health < 50)
                     {
-                        TypewriteColor($"\nWARNING: Low health ({hero.Health}/{hero.MaxHealth})!", ConsoleColor.Red);
-                        Console.WriteLine("Continue? (y/n)");
-                        Console.Write("Choose an option: ");
-                        if (Console.ReadLine().ToLower() != "y") break;
+                        UI.Typewrite($"\nWARNING: Low health ({hero.Health}/{hero.MaxHealth})!", ConsoleColor.Red);
+                        UI.Typewrite("Continue? (y/n)", ConsoleColor.White);
+                        UI.Typewrite("Choose an option: ", ConsoleColor.White, 20, false);
+                        if ((Console.ReadLine() ?? "").ToLower() != "y") break;
                     }
                     currentWave++;
                     menuActive = false;
@@ -888,7 +852,7 @@ class Game
                     break;
 
                 default:
-                    Console.WriteLine("Invalid choice.");
+                    UI.Typewrite("Invalid choice.", ConsoleColor.Yellow);
                     break;
             }
         }
@@ -899,10 +863,10 @@ class Game
         bool inShop = true;
         while (inShop)
         {
-            Console.WriteLine($"\n=== Shop (Gold: {hero.Gold}) ===");
-            Console.WriteLine("1. Potion (50 Gold) | 2. Weapon Upgrade (100 Gold) | 3. Armor Upgrade (150 Gold) | 4. Back");
-            Console.Write("Choose an option: ");
-            string choice = Console.ReadLine();
+            UI.Typewrite($"\n=== Shop (Gold: {hero.Gold}) ===", ConsoleColor.Yellow);
+            UI.Typewrite("1. Potion (50 Gold) | 2. Weapon Upgrade (100 Gold) | 3. Armor Upgrade (150 Gold) | 4. Back", ConsoleColor.White);
+            UI.Typewrite("Choose an option: ", ConsoleColor.White, 20, false);
+            string choice = Console.ReadLine() ?? "";
 
             switch (choice)
             {
@@ -911,10 +875,10 @@ class Game
                     {
                         hero.Gold -= 50;
                         hero.Potions++;
-                        InstantWriteColor("Bought a Potion!", ConsoleColor.Green);
+                        UI.Typewrite("Bought a Potion!", ConsoleColor.Green, 10);
                         SoundManager.PlaySound("BUY");
                     }
-                    else Console.WriteLine("Not enough Gold!");
+                    else UI.Typewrite("Not enough Gold!", ConsoleColor.Red);
                     break;
                 case "2":
                     if (hero.Gold >= 100)
@@ -922,10 +886,10 @@ class Game
                         hero.Gold -= 100;
                         int oldDmg = hero.Weapon.Damage;
                         hero.Weapon.Damage += 5;
-                        InstantWriteColor($"Weapon Upgraded! Damage: {oldDmg} -> {hero.Weapon.Damage}", ConsoleColor.Green);
+                        UI.Typewrite($"Weapon Upgraded! Damage: {oldDmg} -> {hero.Weapon.Damage}", ConsoleColor.Green, 10);
                         SoundManager.PlaySound("BUY");
                     }
-                    else Console.WriteLine("Not enough Gold!");
+                    else UI.Typewrite("Not enough Gold!", ConsoleColor.Red);
                     break;
                 case "3":
                     if (hero.Gold >= 150)
@@ -933,16 +897,16 @@ class Game
                         hero.Gold -= 150;
                         int oldDef = hero.Armor.Defense;
                         hero.Armor.Defense += 1;
-                        InstantWriteColor($"Armor Upgraded! Defense: {oldDef} -> {hero.Armor.Defense}", ConsoleColor.Green);
+                        UI.Typewrite($"Armor Upgraded! Defense: {oldDef} -> {hero.Armor.Defense}", ConsoleColor.Green, 10);
                         SoundManager.PlaySound("BUY");
                     }
-                    else Console.WriteLine("Not enough Gold!");
+                    else UI.Typewrite("Not enough Gold!", ConsoleColor.Red);
                     break;
                 case "4":
                     inShop = false;
                     break;
                 default:
-                    Console.WriteLine("Invalid choice.");
+                    UI.Typewrite("Invalid choice.", ConsoleColor.Yellow);
                     break;
             }
         }
@@ -971,11 +935,11 @@ class Game
                 writer.WriteLine(hero.Armor.Defense);
                 writer.WriteLine(waveToSave);
             }
-            InstantWriteColor("Game Saved!", ConsoleColor.Green);
+            UI.Typewrite("Game Saved!", ConsoleColor.Green);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error saving game: {ex.Message}");
+            UI.Typewrite($"Error saving game: {ex.Message}", ConsoleColor.Red);
         }
     }
 
@@ -983,7 +947,7 @@ class Game
     {
         if (!File.Exists("savegame.txt"))
         {
-            Console.WriteLine("No save file found.");
+            UI.Typewrite("No save file found.", ConsoleColor.Red);
             return false;
         }
 
@@ -991,24 +955,23 @@ class Game
         {
             using (StreamReader reader = new StreamReader("savegame.txt"))
             {
-                string name = reader.ReadLine();
-                string className = reader.ReadLine();
-                int level = int.Parse(reader.ReadLine());
-                int xp = int.Parse(reader.ReadLine());
-                int health = int.Parse(reader.ReadLine());
-                int maxHealth = int.Parse(reader.ReadLine());
-                int potions = int.Parse(reader.ReadLine());
-                int gold = int.Parse(reader.ReadLine());
-                int mana = int.Parse(reader.ReadLine());
-                int maxMana = int.Parse(reader.ReadLine());
-                string weaponName = reader.ReadLine();
-                int weaponDmg = int.Parse(reader.ReadLine());
-                int weaponCrit = int.Parse(reader.ReadLine());
-                string armorName = reader.ReadLine();
-                int armorDef = int.Parse(reader.ReadLine());
-                currentWave = int.Parse(reader.ReadLine());
+                string name = reader.ReadLine() ?? "Player";
+                string className = reader.ReadLine() ?? "Warrior";
+                int level = int.TryParse(reader.ReadLine(), out var tmpLevel) ? tmpLevel : 1;
+                int xp = int.TryParse(reader.ReadLine(), out var tmpXp) ? tmpXp : 0;
+                int health = int.TryParse(reader.ReadLine(), out var tmpHealth) ? tmpHealth : 100;
+                int maxHealth = int.TryParse(reader.ReadLine(), out var tmpMaxHealth) ? tmpMaxHealth : health;
+                int potions = int.TryParse(reader.ReadLine(), out var tmpPotions) ? tmpPotions : 0;
+                int gold = int.TryParse(reader.ReadLine(), out var tmpGold) ? tmpGold : 0;
+                int mana = int.TryParse(reader.ReadLine(), out var tmpMana) ? tmpMana : 0;
+                int maxMana = int.TryParse(reader.ReadLine(), out var tmpMaxMana) ? tmpMaxMana : mana;
+                string weaponName = reader.ReadLine() ?? "Fist";
+                int weaponDmg = int.TryParse(reader.ReadLine(), out var tmpWeaponDmg) ? tmpWeaponDmg : 5;
+                int weaponCrit = int.TryParse(reader.ReadLine(), out var tmpWeaponCrit) ? tmpWeaponCrit : 5;
+                string armorName = reader.ReadLine() ?? "Cloth Tunic";
+                int armorDef = int.TryParse(reader.ReadLine(), out var tmpArmorDef) ? tmpArmorDef : 1;
+                currentWave = int.TryParse(reader.ReadLine(), out var tmpWave) ? tmpWave : 1;
 
-                // Re-create hero based on class
                 switch (className)
                 {
                     case "Warrior": hero = new Warrior(name, rand); break;
@@ -1031,13 +994,13 @@ class Game
                 hero.Weapon = new Weapon(weaponName, weaponDmg, weaponCrit);
                 hero.Armor = new Armor(armorName, armorDef);
 
-                InstantWriteColor("Game Loaded!", ConsoleColor.Green);
+                UI.Typewrite("Game Loaded!", ConsoleColor.Green);
                 return true;
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading game: {ex.Message}");
+            UI.Typewrite($"Error loading game: {ex.Message}", ConsoleColor.Red);
             return false;
         }
     }
@@ -1047,28 +1010,28 @@ class Game
         bool inInventory = true;
         while (inInventory)
         {
-            Console.WriteLine("\n=== Inventory ===");
+            UI.Typewrite("\n=== Inventory ===", ConsoleColor.White);
             
             if (hero.Potions == 0)
             {
-                TypewriteColor("Inventory empty", ConsoleColor.Gray);
-                Console.WriteLine("1. Back");
-                Console.Write("Choose an option: ");
-                string choice = Console.ReadLine();
+                UI.Typewrite("Inventory empty");
+                UI.Typewrite("1. Back", ConsoleColor.White);
+                UI.Typewrite("Choose an option: ", ConsoleColor.White, 20, false);
+                string choice = Console.ReadLine() ?? "";
                 if (choice == "1") inInventory = false;
             }
             else
             {
-                Console.WriteLine($"Potions: {hero.Potions}");
-                Console.WriteLine("1. Use Potion | 2. Back");
-                Console.Write("Choose an option: ");
+                UI.Typewrite($"Potions: {hero.Potions}", ConsoleColor.White);
+                UI.Typewrite("1. Use Potion | 2. Back", ConsoleColor.White);
+                UI.Typewrite("Choose an option: ", ConsoleColor.White, 20, false);
                 
-                string choice = Console.ReadLine();
+                string choice = Console.ReadLine() ?? "";
                 if (choice == "1")
                 {
-                    Console.WriteLine("Use potion? (y/n)");
-                    Console.Write("Choose an option: ");
-                    if (Console.ReadLine().ToLower() == "y") hero.UsePotion();
+                    UI.Typewrite("Use potion? (y/n)", ConsoleColor.White);
+                    UI.Typewrite("Choose an option: ", ConsoleColor.White, 20, false);
+                    if ((Console.ReadLine() ?? "").ToLower() == "y") hero.UsePotion();
                 }
                 else if (choice == "2")
                 {
@@ -1082,16 +1045,16 @@ class Game
     {
         if (hero.Health <= 0)
         {
-            TypewriteColor($"\n*** Game Over! {hero.Name} was defeated! ***", ConsoleColor.Red);
+            UI.Typewrite($"\n*** Game Over! {hero.Name} was defeated! ***", ConsoleColor.Red);
         }
         else
         {
-            TypewriteColor("\nThanks for playing!", ConsoleColor.Cyan);
+            UI.Typewrite("\nThanks for playing!", ConsoleColor.Cyan);
         }
         
         int wavesSurvived = hero.Health > 0 ? currentWave : currentWave - 1;
         
-        TypewriteColor($"Final Level: {hero.Level} | Waves Survived: {wavesSurvived}", ConsoleColor.White);
+        UI.Typewrite($"Final Level: {hero.Level} | Waves Survived: {wavesSurvived}", ConsoleColor.White);
     }
 }
 
